@@ -1,0 +1,170 @@
+/* --- Tailwind v4 (SIN preflight) --- */
+/* Si alguna vez quieres usar el reset de Tailwind, agrega también: @tailwind base; */
+@tailwind components;
+@tailwind utilities;
+
+/* ========= Design tokens ========= */
+:root{
+  --bg: #ffffff;
+  --fg: #0b0b0c;
+  --muted: #64748b;
+  --muted-2:#4b5563;
+  --border:#e5e7eb;
+  --ring:#111827;
+  --card:#ffffff;
+  --shadow: 0 6px 20px rgba(2,6,23,.06);
+  --radius: 1rem;          /* cards */
+  --radius-pill: 999px;    /* botones/chips */
+}
+
+
+/* ========= Base ========= */
+*{ box-sizing: border-box; }
+html, body { height: 100%; }
+body{
+  margin:0;
+  color:var(--fg);
+  background:var(--bg);
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* títulos */
+.title{ font-size:1.55rem; font-weight:800; letter-spacing:-.01em; margin:0; }
+h2{ font-size:1.25rem; font-weight:700; margin:0 0 .5rem; }
+h3{ font-size:1.05rem; font-weight:700; margin:0 0 .25rem; }
+
+/* ========= Contenedores y cards ========= */
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:1rem;
+  box-shadow: var(--shadow);
+}
+
+/* ========= Botones ========= */
+.btn, .btn-outline{
+  display:inline-flex; align-items:center; justify-content:center;
+  gap:.5rem; white-space:nowrap;
+  height:40px; padding:0 .95rem;
+  border-radius:var(--radius-pill);
+  font-weight:700; font-size:.95rem; line-height:1;
+  transition: transform .05s ease, box-shadow .15s ease, background .15s ease, color .15s ease;
+}
+
+.btn{
+  background:#0b0b0c; color:#fff; border:1px solid #0b0b0c;
+  box-shadow: 0 2px 0 #000;
+}
+.btn:hover{ transform: translateY(-1px); }
+.btn:active{ transform: translateY(0); box-shadow:none; }
+.btn:focus-visible{ outline:2px solid var(--ring); outline-offset:2px; }
+.btn:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; }
+
+.btn-outline{
+  background:#fff; color:#0b0b0c; border:1.5px solid #0b0b0c;
+}
+.btn-outline:hover{ background:#0b0b0c; color:#fff; }
+.btn-outline:focus-visible{ outline:2px solid var(--ring); outline-offset:2px; }
+
+/* ========= Inputs ========= */
+.input, .textarea, select{
+  width:100%;
+  border:1px solid var(--border);
+  border-radius: calc(var(--radius) - .25rem);
+  padding:.62rem .8rem; font-size:.95rem;
+  background:#fff; color:var(--fg);
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+.textarea{ min-height:120px; resize:vertical; }
+
+.input:focus, .textarea:focus, select:focus{
+  outline:none;
+  border-color:#111827;
+  box-shadow: 0 0 0 3px rgba(17,24,39,.12);
+}
+
+/* etiquetas pequeñas */
+.label{
+  display:block; margin-bottom:.35rem;
+  font-size:.85rem; font-weight:600; color:var(--muted);
+}
+
+/* ========= Chips / Píldoras (pasos, filtros) ========= */
+.chip{
+  display:inline-flex; align-items:center; gap:.4rem;
+  padding:.38rem .7rem; border:1px solid var(--border);
+  border-radius:var(--radius-pill); background:#fff; color:#111827;
+  font-weight:600; font-size:.9rem;
+  transition: background .15s ease, color .15s ease, border-color .15s ease;
+}
+.chip:hover{ background:#f9fafb; }
+.chip[disabled]{ opacity:.6; cursor:not-allowed; }
+.chip.active{ background:#111827; color:#fff; border-color:#111827; }
+
+/* ========= Medios ========= */
+img, video{ display:block; max-width:100%; height:auto; border-radius:.9rem; }
+video{ background:#000; }
+
+/* ========= Utilidades mínimas (por si Tailwind no está) ========= */
+.grid{ display:grid; }
+.grid-cols-1{ grid-template-columns:repeat(1,minmax(0,1fr)); }
+@media (min-width: 768px){
+  .md\:grid-cols-2{ grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+.flex{ display:flex; } .items-center{ align-items:center; } .justify-between{ justify-content:space-between; }
+.gap-2{ gap:.5rem; } .gap-3{ gap:.75rem; } .gap-4{ gap:1rem; }
+.p-6{ padding:1.5rem; }
+.space-y-6 > * + *{ margin-top:1.5rem; }
+.space-y-4 > * + *{ margin-top:1rem; }
+.mb-2{ margin-bottom:.5rem; } .mb-3{ margin-bottom:.75rem; } .mb-4{ margin-bottom:1rem; }
+.mt-2{ margin-top:.5rem; } .mt-4{ margin-top:1rem; } .mt-6{ margin-top:1.5rem; }
+.rounded-xl{ border-radius:var(--radius); }
+.rounded-lg{ border-radius:.9rem; }
+.border{ border:1px solid var(--border); }
+.text-slate-500{ color:var(--muted); }
+.text-slate-600{ color:var(--muted-2); }
+.list-disc{ list-style:disc; } .ml-6{ margin-left:1.5rem; }
+.max-w-3xl{ max-width:48rem; } .max-w-5xl{ max-width:64rem; }
+.mx-auto{ margin-left:auto; margin-right:auto; }
+.w-16{ width:4rem; }
+
+/* ========= Barras de progreso (player) ========= */
+.progress-wrap{ width:100%; height:8px; background:#eef2f7; border-radius:999px; overflow:hidden; }
+.progress-bar{ height:8px; background:#0b0b0c; border-radius:999px; }
+
+/* ========= Enlaces ========= */
+a{ color:inherit; text-decoration:none; }
+a:hover{ text-decoration:underline; }
+
+
+/* ----- espaciados globales ----- */
+:root{
+    --space-s: .75rem;   /* 12px */
+    --space-m: 1rem;     /* 16px */
+    --space-l: 1.25rem;  /* 20px */
+    --space-xl: 1.5rem;  /* 24px */
+  }
+  
+  /* Cards con más “aire” y sombra suave */
+  .card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding: var(--space-l);
+    box-shadow: var(--shadow);
+  }
+  @media (min-width:768px){
+    .card{ padding: var(--space-xl); }
+  }
+  
+  /* Stacks verticales más amplios (para <main>) */
+  .space-y-8 > * + *{ margin-top: 2rem; }
+  .space-y-10 > * + *{ margin-top: 2.5rem; }
+  
+  /* Gaps extra para grids/flex */
+  .gap-5{ gap: var(--space-l); }
+  .gap-6{ gap: var(--space-xl); }
+  
