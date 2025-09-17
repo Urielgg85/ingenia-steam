@@ -1,33 +1,78 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import seeds from './data/seeds/index.js'
 import { useSession } from './lib/session.jsx'
 import { fetchPublicActivities, fetchOrgActivities, fetchMarketplace } from './lib/db'
+import { canCreate, isAdmin } from './lib/perm.js'
 
 export default function App(){
   const { session, profile } = useSession()
+
   const [pub, setPub] = useState([])
   const [org, setOrg] = useState([])
   const [market, setMarket] = useState([])
 
-  useEffect(()=>{
-    fetchPublicActivities().then(setPub).catch(()=>{})
-    fetchMarketplace().then(setMarket).catch(()=>{})
-    if(session) fetchOrgActivities().then(setOrg).catch(()=>{})
+  // 🔒 Guards anti-bucle
+  const lastSessionIdRef = useRef(null)   // evita re-ejecutar si la sesión no cambió realmente
+  const loadingRef = useRef(false)        // evita solapes si el efecto se vuelve a disparar rápido
+  const aliveRef = useRef(true)           // cleanup para no setState en desmontaje
+
+  useEffect(() => {
+    return () => { aliveRef.current = false }
+  }, [])
+
+  useEffect(() => {
+    // Normalizamos el "id" de sesión para comparar (anon vs userId)
+    const curSessionId = session?.user?.id || 'anon'
+
+    // Si la sesión efectiva no cambió, no disparamos otra tanda de requests
+    if (lastSessionIdRef.current === curSessionId) return
+    lastSessionIdRef.current = curSessionId
+
+    // Si ya hay una tanda en vuelo, no iniciar otra
+    if (loadingRef.current) return
+    loadingRef.current = true
+
+    ;(async () => {
+      try {
+        // públicas + marketplace en paralelo
+        const [pubData, marketData] = await Promise.all([
+          fetchPublicActivities().catch(() => []),
+          fetchMarketplace().catch(() => []),
+        ])
+        if (!aliveRef.current) return
+        setPub(pubData || [])
+        setMarket(marketData || [])
+
+        // de la org solo si hay sesión
+        if (session) {
+          const orgData = await fetchOrgActivities().catch(() => [])
+          if (!aliveRef.current) return
+          setOrg(orgData || [])
+        } else {
+          setOrg([])
+        }
+      } finally {
+        loadingRef.current = false
+      }
+    })()
   }, [session])
 
-  // qué secciones mostrar
+  // Flags UI
   const showPub = pub.length > 0
   const showOrg = !!session && org.length > 0
   const showMarket = market.length > 0
+  const allowCreate = canCreate(session, profile)
+  const adminLink = isAdmin(profile)
 
   return (
     <main className="max-w-5xl mx-auto p-6 space-y-10">
       <header className="flex items-center justify-between">
         <h1 className="title">Ingenia — Creador de Actividades STEAM</h1>
         <nav className="flex gap-2">
-          <Link className="btn-outline" to="/create">Crear actividad</Link>
-          <Link className="btn-outline" to="/import">Importar JSON</Link>
+          {adminLink && <Link className="btn-outline" to="/admin/solicitudes">Admin</Link>}
+          {allowCreate && <Link className="btn-outline" to="/create">Crear actividad</Link>}
+          {allowCreate && <Link className="btn-outline" to="/import">Importar JSON</Link>}
           <Link className="btn" to="/auth">{session ? 'Mi cuenta' : 'Entrar'}</Link>
         </nav>
       </header>
@@ -36,9 +81,11 @@ export default function App(){
         <div className="card flex items-center justify-between">
           <div>
             <div className="font-semibold">Hola, {profile?.display_name || session.user.email}</div>
-            <div className="text-sm text-slate-500">Rol: {profile?.role || '—'} · Org: {profile?.org_id || '—'}</div>
+            <div className="text-sm text-slate-500">
+              Rol: {profile?.role || '—'} · Org: {profile?.org_id || '—'}
+            </div>
           </div>
-          <Link className="btn-outline" to="/create">Nueva actividad</Link>
+          {allowCreate && <Link className="btn-outline" to="/create">Nueva actividad</Link>}
         </div>
       )}
 
